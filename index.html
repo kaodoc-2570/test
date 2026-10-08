@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบ Deploy ขึ้น Vercel สำเร็จ! 🚀</title>
+    <!-- Tailwind CSS สำหรับตกแต่งแบบรวดเร็ว -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-white/20">
+        <div class="inline-block p-3 bg-indigo-100 rounded-full text-indigo-600 mb-4 animate-bounce">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+        </div>
+
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Hello Vercel! 👋</h1>
+        <p class="text-gray-600 text-sm mb-6">ยินดีด้วย! คุณได้ deploy โปรเจ็คแรกขึ้น Vercel สำเร็จแล้ว ลองกดปุ่มด้านล่างเพื่อสุ่มคำคมพลังใจดูสิครับ</p>
+
+        <div id="quote-box" class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 text-indigo-800 font-medium min-h-[80px] flex items-center justify-center">
+            "กดปุ่มด้านล่างเพื่อรับพลังบวกประจำวันกันเลย!"
+        </div>
+
+        <button onclick="generateQuote()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition duration-300 transform active:scale-95">
+            ✨ สุ่มคำคมพลังใจ
+        </button>
+
+        <div class="mt-8 text-xs text-gray-400 border-t pt-4">
+            Powered by Vercel & HTML5/Tailwind CSS
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            "“ความพยายามอยู่ที่ไหน ความสำเร็จอยู่ที่นั่น แม้จะต้องใช้เวลาหน่อยก็ตาม” 🚀",
+            "“ทุกความผิดพลาด คือบทเรียนราคาแพงที่ทำให้เราเก่งขึ้น” 💪",
+            "“เชื่อมั่นในตัวเอง แล้วลุยทำมันให้เต็มที่วันนี้!” ✨",
+            "“อนาคตที่ดีสร้างได้ด้วยการลงมือทำในวันนี้ ไม่ใช่แค่คิด” 🌟",
+            "“ยิ้มให้กับปัญหา เพราะทุกอย่างมีทางออกเสมอ” 🌻",
+            "“คุณเก่งกว่าที่คุณคิด และสู้ไวกว่าที่คุณกังวลแน่นอน!” 🔥"
+        ];
+
+        function generateQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quoteBox = document.getElementById('quote-box');
+            quoteBox.style.opacity = '0';
+            setTimeout(() => {
+                quoteBox.innerText = quotes[randomIndex];
+                quoteBox.style.opacity = '1';
+                quoteBox.style.transition = 'opacity 0.3s ease-in-out';
+            }, 150);
+        }
+    </script>
+</body>
+</html>
