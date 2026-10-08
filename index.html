@@ -2,60 +2,309 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ทดสอบ Deploy ขึ้น Vercel สำเร็จ! 🚀</title>
-    <!-- Tailwind CSS สำหรับตกแต่งแบบรวดเร็ว -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>สกีการ์ตูน 3D มือถือ - Snow Ski Rush</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Prompt', sans-serif; }
+        body { font-family: 'Prompt', sans-serif; touch-action: manipulation; }
+        canvas { display: block; }
+        @keyframes shake {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-5px, 5px); }
+            50% { transform: translate(5px, -5px); }
+            75% { transform: translate(-5px, -5px); }
+            100% { transform: translate(0, 0); }
+        }
+        .screen-shake { animation: shake 0.4s ease-in-out; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-900 text-white h-screen flex flex-col items-center justify-between p-3 select-none overflow-hidden">
 
-    <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-white/20">
-        <div class="inline-block p-3 bg-indigo-100 rounded-full text-indigo-600 mb-4 animate-bounce">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+    <div id="game-wrapper" class="w-full max-w-md p-3 bg-slate-800/90 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 flex flex-col items-center transition-all">
+        <!-- Header -->
+        <div class="flex justify-between w-full mb-2 px-2 text-sm font-semibold">
+            <span class="text-sky-300">⛷️ สกีการ์ตูน 3D (มือถือ)</span>
+            <span>คะแนน: <span id="score" class="text-amber-400 text-lg">0</span></span>
         </div>
 
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">Hello Vercel! 👋</h1>
-        <p class="text-gray-600 text-sm mb-6">ยินดีด้วย! คุณได้ deploy โปรเจ็คแรกขึ้น Vercel สำเร็จแล้ว ลองกดปุ่มด้านล่างเพื่อสุ่มคำคมพลังใจดูสิครับ</p>
-
-        <div id="quote-box" class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 text-indigo-800 font-medium min-h-[80px] flex items-center justify-center">
-            "กดปุ่มด้านล่างเพื่อรับพลังบวกประจำวันกันเลย!"
+        <!-- 3D Game Canvas Container -->
+        <div id="game-container" class="relative w-full h-64 bg-slate-950 rounded-xl overflow-hidden border border-slate-700 flex items-center justify-center shadow-inner">
+            <!-- Start Screen Overlay -->
+            <div id="start-screen" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-4 text-center">
+                <h1 class="text-xl font-bold mb-2 text-white">❄️ Cartoon Ski Mobile</h1>
+                <p class="text-xs text-slate-300 mb-4 max-w-xs">แตะปุ่ม <span class="bg-slate-700 px-2 py-0.5 rounded text-sky-300 font-bold">⬅️ ซ้าย / ➡️ ขวา</span> ด้านล่างเพื่อบังคับตัวการ์ตูนหลบต้นสน</p>
+                <button onclick="startGame()" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-transform active:scale-95 cursor-pointer text-base">
+                    ลุยสกีเลย! 🎿
+                </button>
+            </div>
         </div>
 
-        <button onclick="generateQuote()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition duration-300 transform active:scale-95">
-            ✨ สุ่มคำคมพลังใจ
-        </button>
-
-        <div class="mt-8 text-xs text-gray-400 border-t pt-4">
-            Powered by Vercel & HTML5/Tailwind CSS
+        <!-- Mobile Control Buttons -->
+        <div class="flex gap-4 w-full mt-3">
+            <button id="btn-left" class="flex-1 bg-slate-700 hover:bg-slate-600 active:bg-sky-500 text-white font-bold py-4 rounded-xl text-xl shadow-md transition cursor-pointer flex items-center justify-center">
+                ⬅️ ซ้าย
+            </button>
+            <button id="btn-right" class="flex-1 bg-slate-700 hover:bg-slate-600 active:bg-sky-500 text-white font-bold py-4 rounded-xl text-xl shadow-md transition cursor-pointer flex items-center justify-center">
+                ขวา ➡️
+            </button>
         </div>
     </div>
 
     <script>
-        const quotes = [
-            "“ความพยายามอยู่ที่ไหน ความสำเร็จอยู่ที่นั่น แม้จะต้องใช้เวลาหน่อยก็ตาม” 🚀",
-            "“ทุกความผิดพลาด คือบทเรียนราคาแพงที่ทำให้เราเก่งขึ้น” 💪",
-            "“เชื่อมั่นในตัวเอง แล้วลุยทำมันให้เต็มที่วันนี้!” ✨",
-            "“อนาคตที่ดีสร้างได้ด้วยการลงมือทำในวันนี้ ไม่ใช่แค่คิด” 🌟",
-            "“ยิ้มให้กับปัญหา เพราะทุกอย่างมีทางออกเสมอ” 🌻",
-            "“คุณเก่งกว่าที่คุณคิด และสู้ไวกว่าที่คุณกังวลแน่นอน!” 🔥"
-        ];
+        let scene, camera, renderer, skier, obstacle;
+        let score = 0;
+        let gameSpeed = 0.2;
+        let isPlaying = false;
+        let animationId;
+        let moveLeft = false;
+        let moveRight = false;
 
-        function generateQuote() {
-            const randomIndex = Math.floor(Math.random() * quotes.length);
-            const quoteBox = document.getElementById('quote-box');
-            quoteBox.style.opacity = '0';
-            setTimeout(() => {
-                quoteBox.innerText = quotes[randomIndex];
-                quoteBox.style.opacity = '1';
-                quoteBox.style.transition = 'opacity 0.3s ease-in-out';
-            }, 150);
+        // Web Audio API สำหรับเสียงเอฟเฟกต์
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
         }
+
+        function playStartSound() {
+            initAudio();
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function playScoreSound() {
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        function playCrashSound() {
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        const container = document.getElementById('game-container');
+        const gameWrapper = document.getElementById('game-wrapper');
+        const scoreDisplay = document.getElementById('score');
+        const startScreen = document.getElementById('start-screen');
+
+        function init3D() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 3, 5);
+            camera.lookAt(0, 0, -2);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 5);
+            scene.add(dirLight);
+
+            // พื้นหิมะ
+            const snowGeo = new THREE.BoxGeometry(6, 0.1, 40);
+            const snowMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.9 });
+            const snowGround = new THREE.Mesh(snowGeo, snowMat);
+            snowGround.position.set(0, -0.05, -15);
+            scene.add(snowGround);
+
+            // ตัวละครการ์ตูน 3D
+            const skierGroup = new THREE.Group();
+            
+            const bodyGeo = new THREE.BoxGeometry(0.5, 0.6, 0.4);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.3;
+            skierGroup.add(body);
+
+            const headGeo = new THREE.SphereGeometry(0.28, 16, 16);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xfed7aa });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 0.85;
+            skierGroup.add(head);
+
+            const hatGeo = new THREE.SphereGeometry(0.25, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+            const hatMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+            const hat = new THREE.Mesh(hatGeo, hatMat);
+            hat.position.y = 0.95;
+            skierGroup.add(hat);
+
+            const eyeGeo = new THREE.SphereGeometry(0.04, 8, 8);
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+            
+            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+            leftEye.position.set(0.09, 0.87, 0.24);
+            skierGroup.add(leftEye);
+
+            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+            rightEye.position.set(-0.09, 0.87, 0.24);
+            skierGroup.add(rightEye);
+
+            skier = skierGroup;
+            skier.position.set(0, 0, 1);
+            scene.add(skier);
+
+            // สิ่งกีดขวาง (ต้นสนหิมะ)
+            const treeGroup = new THREE.Group();
+            const trunkGeo = new THREE.CylinderGeometry(0.1, 0.15, 0.6);
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x78350f });
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = 0.3;
+            treeGroup.add(trunk);
+
+            const leavesGeo = new THREE.ConeGeometry(0.5, 1.2, 8);
+            const leavesMat = new THREE.MeshStandardMaterial({ color: 0x065f46 });
+            const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+            leaves.position.y = 1.0;
+            treeGroup.add(leaves);
+
+            obstacle = treeGroup;
+            obstacle.position.set(0, 0, -15);
+            scene.add(obstacle);
+
+            renderer.render(scene, camera);
+        }
+
+        // รองรับทั้งคีย์บอร์ดและปุ่มบนหน้าจอสัมผัส (Mobile Touch & Click)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'ArrowLeft') moveLeft = true;
+            if (e.code === 'ArrowRight') moveRight = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft') moveLeft = false;
+            if (e.code === 'ArrowRight') moveRight = false;
+        });
+
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+
+        // ปุ่มซ้าย
+        btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft = true; });
+        btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); moveLeft = false; });
+        btnLeft.addEventListener('mousedown', () => { moveLeft = true; });
+        btnLeft.addEventListener('mouseup', () => { moveLeft = false; });
+
+        // ปุ่มขวา
+        btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); moveRight = true; });
+        btnRight.addEventListener('touchend', (e) => { e.preventDefault(); moveRight = false; });
+        btnRight.addEventListener('mousedown', () => { moveRight = true; });
+        btnRight.addEventListener('mouseup', () => { moveRight = false; });
+
+        function startGame() {
+            playStartSound();
+            startScreen.classList.add('hidden');
+            isPlaying = true;
+            score = 0;
+            gameSpeed = 0.2;
+            obstacle.position.z = -15;
+            obstacle.position.x = (Math.random() - 0.5) * 3;
+            skier.position.x = 0;
+            scoreDisplay.textContent = score;
+            
+            if (animationId) cancelAnimationFrame(animationId);
+            animate();
+        }
+
+        function animate() {
+            if (!isPlaying) return;
+
+            animationId = requestAnimationFrame(animate);
+
+            if (moveLeft && skier.position.x > -1.8) {
+                skier.position.x -= 0.1;
+                skier.rotation.y = 0.3;
+            } else if (moveRight && skier.position.x < 1.8) {
+                skier.position.x += 0.1;
+                skier.rotation.y = -0.3;
+            } else {
+                skier.rotation.y = 0;
+            }
+
+            obstacle.position.z += gameSpeed;
+
+            if (obstacle.position.z > 2) {
+                obstacle.position.z = -20;
+                obstacle.position.x = (Math.random() - 0.5) * 3;
+                score += 10;
+                scoreDisplay.textContent = score;
+                playScoreSound();
+
+                if (score % 50 === 0) {
+                    gameSpeed += 0.03;
+                }
+            }
+
+            if (Math.abs(obstacle.position.z - skier.position.z) < 0.8 && Math.abs(obstacle.position.x - skier.position.x) < 0.6) {
+                gameOver();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            cancelAnimationFrame(animationId);
+            playCrashSound();
+            startScreen.classList.remove('hidden');
+
+            gameWrapper.classList.add('screen-shake');
+            setTimeout(() => {
+                gameWrapper.classList.remove('screen-shake');
+            }, 400);
+
+            Swal.fire({
+                title: 'ชนต้นสนเข้าแล้ว! 🌲💥',
+                text: `ตัวการ์ตูนสกีทำคะแนนไปได้ ${score} คะแนน`,
+                icon: 'warning',
+                confirmButtonText: 'เล่นใหม่อีกรอบ',
+                confirmButtonColor: '#0ea5e9',
+                background: '#1e293b',
+                color: '#fff'
+            });
+        }
+
+        window.onload = init3D;
     </script>
 </body>
 </html>
